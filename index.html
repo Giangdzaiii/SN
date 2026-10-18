@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật Hằng Nguyễn</title>
+    <!-- Google Fonts cho kiểu chữ dễ thương -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- RESET & STYLE CHUNG --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka', cursive, sans-serif;
+            background-color: #800f13;
+            /* Nền đỏ họa tiết cho màn hình 1 và màn hình 2 */
+            background-image: 
+                radial-gradient(rgba(0, 0, 0, 0.2) 15%, transparent 16%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23ff9999' fill-opacity='0.15'%3E%3Ccircle cx='40' cy='35' r='12'/%3E%3Cpath d='M40 12 L48 24 L32 24 Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 60px 60px, 80px 80px;
+            overflow: hidden;
+            transition: background-color 1s ease;
+        }
+
+        /* Khi chạy hiệu ứng thì chuyển nền body thành màu đen */
+        body.effect-active {
+            background-color: black !important;
+            background-image: none !important;
+        }
+
+        /* --- MÀN HÌNH 1: KHÓA PASSCODE --- */
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .lock-card {
+            width: 100%;
+            background: #fdf6ee;
+            border: 4px solid #b83b28;
+            border-radius: 36px;
+            padding: 24px 20px 32px 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .top-notch {
+            width: 80px;
+            height: 20px;
+            background: #b83b28;
+            border-radius: 0 0 12px 12px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .lock-icon-box {
+            margin-top: 15px;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #e63946, #b83b28);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 6px 12px rgba(184, 59, 40, 0.3);
+        }
+
+        .lock-icon-box svg {
+            width: 28px;
+            height: 28px;
+            fill: #ffffff;
+        }
+
+        .title {
+            color: #7a1c12;
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        .clue-badge {
+            background: #f7e1d7;
+            border: 1.5px dashed #d97757;
+            border-radius: 20px;
+            padding: 6px 16px;
+            color: #922b1d;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hearts-dots {
+            display: flex;
+            gap: 16px;
+            margin: 24px 0 20px 0;
+        }
+
+        .heart-dot {
+            width: 24px;
+            height: 24px;
+            color: #f1a7a0;
+            transition: all 0.2s ease;
+        }
+
+        .heart-dot.active {
+            color: #e63946;
+            transform: scale(1.2);
+        }
+
+        .heart-dot.shake {
+            animation: shake 0.4s ease-in-out;
+            color: #d90429 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px 18px;
+            width: 100%;
+            padding: 0 8px;
+        }
+
+        .key-btn {
+            background: #ffffff;
+            border: 3px solid #b83b28;
+            border-radius: 18px;
+            height: 52px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #7a1c12;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #8c2517;
+            transition: all 0.1s ease;
+        }
+
+        .key-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #8c2517;
+        }
+
+        .key-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #7a1c12;
+        }
+
+        /* --- CANVAS CHO HIỆU ỨNG HẠT SÁNG & MƯA CHỮ --- */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #rainCanvas {
+            z-index: 1;
+        }
+
+        .canvas {
+            z-index: 2;
+        }
+
+        /* --- MÀN HÌNH 2: BỨC THƯ CHÚC MỪNG --- */
+        .letter-card {
+            width: 100%;
+            max-width: 380px;
+            background: #fefae0;
+            border-radius: 8px;
+            padding: 30px 22px 26px 22px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: none;
+            flex-direction: column;
+            max-height: 90vh;
+            overflow-y: auto;
+            background-image: repeating-linear-gradient(
+                #fefae0,
+                #fefae0 31px,
+                #e5d5c5 32px
+            );
+            line-height: 32px;
+            z-index: 5;
+            animation: paperAppear 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes paperAppear {
+            0% { opacity: 0; transform: scale(0.8) rotate(-3deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        .tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 26px;
+            background: rgba(220, 200, 170, 0.85);
+            border: 1px solid rgba(180, 160, 130, 0.5);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .letter-title {
+            font-family: 'Fredoka', sans-serif;
+            color: #a61c1c;
+            font-size: 21px;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 6px;
+            margin-bottom: 20px;
+        }
+
+        .letter-body {
+            font-family: 'Mali', cursive;
+            color: #2b2d42;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .letter-body p {
+            margin-bottom: 18px;
+            text-indent: 10px;
+        }
+
+        .letter-footer {
+            font-family: 'Fredoka', cursive;
+            color: #a61c1c;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .letter-footer .with-love {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .letter-footer .sender {
+            font-size: 20px;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .reset-btn {
+            margin-top: 15px;
+            align-self: center;
+            background: #a61c1c;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-family: 'Fredoka', cursive;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            pointer-events: auto;
+        }
+        
+        .reset-btn:hover {
+            background: #800f13;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Các lớp canvas cho hiệu ứng mưa chữ và hạt sáng -->
+    <canvas id="rainCanvas"></canvas>
+    <canvas class="canvas"></canvas>
+
+    <!-- Nhạc nền -->
+    <audio id="sound" loop preload="auto">
+        <source src="./style/music.mp4" type="audio/mpeg" />
+    </audio>
+
+    <div class="container">
+        <!-- MÀN HÌNH 1: KHÓA PASSCODE (Mã: 1910) -->
+        <div class="lock-card" id="lockScreen">
+            <div class="top-notch"></div>
+            
+            <div class="lock-icon-box">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+
+            <div class="title">Unlock The Surprise</div>
+
+            <div class="clue-badge">
+                <span>✨</span> Clue: Ngày sinh nhật Hằng Nguyễn (19/10)
+            </div>
+
+            <!-- 4 ô trái tim biểu diễn mật khẩu -->
+            <div class="hearts-dots" id="heartsContainer">
+                <svg class="heart-dot" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-dot" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-dot" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-dot" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+
+            <!-- Bàn phím số -->
+            <div class="keypad">
+                <button class="key-btn" onclick="pressKey('1')">1</button>
+                <button class="key-btn" onclick="pressKey('2')">2</button>
+                <button class="key-btn" onclick="pressKey('3')">3</button>
+                <button class="key-btn" onclick="pressKey('4')">4</button>
+                <button class="key-btn" onclick="pressKey('5')">5</button>
+                <button class="key-btn" onclick="pressKey('6')">6</button>
+                <button class="key-btn" onclick="pressKey('7')">7</button>
+                <button class="key-btn" onclick="pressKey('8')">8</button>
+                <button class="key-btn" onclick="pressKey('9')">9</button>
+                <button class="key-btn" onclick="clearAll()">C</button>
+                <button class="key-btn" onclick="pressKey('0')">0</button>
+                <button class="key-btn" onclick="deleteKey()">
+                    <svg viewBox="0 0 24 24"><path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- MÀN HÌNH 2: BỨC THƯ CHÚC MỪNG -->
+        <div class="letter-card" id="letterScreen">
+            <div class="tape"></div>
+            
+            <h1 class="letter-title">Happy Birthday, Hằng Nguyễn ❤️</h1>
+            
+            <div class="letter-body">
+                <p>Chúc cậu ngày hôm nay thật vui vẻ, ấm áp và nhẹ nhàng. Mong rằng khi thức dậy, cậu sẽ đón nhận thật nhiều lời chúc dễ thương từ gia đình và bạn bè, để bắt đầu một ngày thật đặc biệt với tâm trạng vui vẻ nhất.</p>
+
+                <p>Tớ mong tuổi mới sẽ mang đến cho cậu nhiều may mắn và những điều tốt đẹp, từ học tập, công việc đến cuộc sống và các mối quan hệ.</p>
+
+                <p>Đây là sinh nhật đầu tiên tớ được gửi lời chúc đến cậu. Tớ hy vọng mình sẽ có nhiều cơ hội hơn được chúc mừng sinh nhật cậu thêm nhiều năm nữa. Tớ sẽ cố gắng để những năm sau, bên cạnh lời chúc, tớ còn có thể mang đến cho cậu nhiều niềm vui hơn nữa.</p>
+
+                <p>Hôm nay, tớ mới chỉ cho cậu thấy một phần của món quà thôi, phần còn lại thì để dành cho lần hẹn tiếp theo nhé. Ngủ ngoan. Mai thi tốt. ^.^ ❤️</p>
+            </div>
+
+            <div class="letter-footer">
+                <div class="with-love">With all my heart,</div>
+                <div class="sender">PHG</div>
+            </div>
+
+            <button class="reset-btn" onclick="resetLock()">🔒 Khóa lại</button>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PIN = "1910"; 
+        let currentInput = "";
+
+        const hearts = document.querySelectorAll('.heart-dot');
+        const lockScreen = document.getElementById('lockScreen');
+        const letterScreen = document.getElementById('letterScreen');
+        const sound = document.getElementById('sound');
+
+        function pressKey(num) {
+            if (currentInput.length < 4) {
+                currentInput += num;
+                updateHearts();
+
+                if (currentInput.length === 4) {
+                    setTimeout(checkPassword, 200);
+                }
+            }
+        }
+
+        function deleteKey() {
+            if (currentInput.length > 0) {
+                currentInput = currentInput.slice(0, -1);
+                updateHearts();
+            }
+        }
+
+        function clearAll() {
+            currentInput = "";
+            updateHearts();
+        }
+
+        function updateHearts() {
+            hearts.forEach((heart, index) => {
+                if (index < currentInput.length) {
+                    heart.classList.add('active');
+                } else {
+                    heart.classList.remove('active');
+                }
+            });
+        }
+
+        function checkPassword() {
+            if (currentInput === CORRECT_PIN) {
+                lockScreen.classList.add('hidden');
+
+                if (sound) {
+                    sound.play().catch(e => console.log('Phát nhạc bị chặn:', e));
+                }
+
+                // 1. Chuyển nền body sang màu đen khi hiệu ứng bắt đầu
+                document.body.classList.add('effect-active');
+
+                // 2. Chạy hiệu ứng mưa chữ nền đen
+                rainInterval = setInterval(drawRainBackground, 40);
+
+                // 3. Chạy hiệu ứng hạt sáng
+                S.init();
+
+            } else {
+                hearts.forEach(heart => heart.classList.add('shake'));
+                setTimeout(() => {
+                    hearts.forEach(heart => heart.classList.remove('shake'));
+                    clearAll();
+                }, 500);
+            }
+        }
+
+        function resetLock() {
+            location.reload(); 
+        }
+
+        const rainCanvas = document.getElementById('rainCanvas');
+        const rainCtx = rainCanvas.getContext('2d');
+
+        function resizeRainCanvas() {
+            rainCanvas.width = window.innerWidth;
+            rainCanvas.height = window.innerHeight;
+        }
+        resizeRainCanvas();
+        window.addEventListener('resize', resizeRainCanvas);
+
+        const letters = 'HAPPY BIRTHDAY'.split('');
+        const fontSize = 20;
+        let columns = Math.floor(window.innerWidth / fontSize);
+        let drops = Array(columns).fill(1);
+        let rainInterval = null;
+
+        function drawRainBackground() {
+            // Dùng nền đen quét mờ (0.08) cho hiệu ứng mưa chữ sáng rực rỡ
+            rainCtx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            rainCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
+            rainCtx.font = fontSize + 'px arial';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                rainCtx.fillStyle = '#ff69b4';
+                rainCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > rainCanvas.height || Math.random() > 0.95) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        var S = {
+            init: function () {
+                S.Drawing.init('.canvas');
+                S.UI.simulate([
+                    '#countdown 3',
+                    'HAPPY BIRTHDAY',
+                    'Hằng Nguyễn',
+                    '❤️'
+                ]);
+                S.Drawing.loop(function () {
+                    S.Shape.render();
+                });
+            }
+        };
+
+        S.Drawing = (function () {
+            var canvas, context, renderFn,
+                requestFrame = window.requestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
+            return {
+                init: function (el) {
+                    canvas = document.querySelector(el);
+                    context = canvas.getContext('2d');
+                    this.adjustCanvas();
+                    window.addEventListener('resize', () => this.adjustCanvas());
+                },
+                loop: function (fn) {
+                    renderFn = !renderFn ? fn : renderFn;
+                    this.clearFrame();
+                    renderFn();
+                    requestFrame.call(window, this.loop.bind(this));
+                },
+                adjustCanvas: function () {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                },
+                clearFrame: function () {
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                },
+                getArea: function () {
+                    return { w: canvas.width, h: canvas.height };
+                },
+                drawCircle: function (p, c) {
+                    context.fillStyle = c.render();
+                    context.beginPath();
+                    context.arc(p.x, p.y, p.z, 0, 2 * Math.PI, true);
+                    context.closePath();
+                    context.fill();
+                }
+            };
+        }());
+
+        S.UI = (function () {
+            var sequence = [], cmd = '#';
+
+            function getAction(value) {
+                value = value && value.split(' ')[0];
+                return value && value[0] === cmd && value.substring(1);
+            }
+
+            function getValue(value) {
+                value = value && value.split(' ').slice(1).join(' ');
+                return value;
+            }
+
+            function performAction(value) {
+                sequence = typeof (value) === 'object' ? value : sequence.concat(value.split('|'));
+                
+                function runNext() {
+                    if (sequence.length === 0) {
+                        // KHI HIỆU ỨNG HẠT SÁNG CHẠY XONG:
+                        document.querySelector('.canvas').style.display = 'none';
+                        if(rainCanvas) rainCanvas.style.display = 'none';
+                        
+                        // Xóa nền đen, trả lại nền đỏ họa tiết cho màn hình 2 (bức thư)
+                        document.body.classList.remove('effect-active');
+                        
+                        // Hiển thị bức thư chúc mừng
+                        letterScreen.style.display = 'flex';
+                        
+                        if (typeof confetti === 'function') {
+                            confetti({
+                                particleCount: 120,
+                                spread: 80,
+                                origin: { y: 0.6 }
+                            });
+                        }
+                        return; 
+                    }
+
+                    var current = sequence.shift();
+                    var action = getAction(current);
+                    var val = getValue(current);
+
+                    if (action === 'countdown') {
+                        let count = parseInt(val) || 3;
+                        S.Shape.switchShape(S.ShapeBuilder.letter(count));
+                        count--;
+
+                        let cInterval = setInterval(() => {
+                            if (count > 0) {
+                                S.Shape.switchShape(S.ShapeBuilder.letter(count));
+                                count--;
+                            } else {
+                                clearInterval(cInterval);
+                                runNext();
+                            }
+                        }, 1000);
+
+                    } else if (action === 'heart') {
+                        S.Shape.switchShape(S.ShapeBuilder.heart());
+                        setTimeout(runNext, 2000);
+                    } else {
+                        let textToShow = current[0] === cmd ? 'Hằng Nguyễn' : current;
+                        S.Shape.switchShape(S.ShapeBuilder.letter(textToShow));
+                        setTimeout(runNext, 2000);
+                    }
+                }
+                runNext();
+            }
+
+            return {
+                simulate: function (action) {
+                    performAction(action);
+                }
+            };
+        }());
+
+        S.Point = function (args) {
+            this.x = args.x; this.y = args.y; this.z = args.z; this.a = args.a; this.h = args.h;
+        };
+        S.Color = function (r, g, b, a) {
+            this.r = r; this.g = g; this.b = b; this.a = a;
+        };
+        S.Color.prototype = {
+            render: function () { return 'rgba(' + this.r + ',' + this.g + ',' + this.b + ',' + this.a + ')'; }
+        };
+        S.Dot = function (x, y) {
+            this.p = new S.Point({ x: x, y: y, z: 5, a: 1, h: 0 });
+            this.e = 0.08; this.s = true; this.c = new S.Color(255, 255, 255, this.p.a);
+            this.t = this.clone(); this.q = [];
+        };
+        S.Dot.prototype = {
+            clone: function () { return new S.Point({ x: this.x, y: this.y, z: this.z, a: this.a, h: this.h }); },
+            _draw: function () { this.c.a = this.p.a; S.Drawing.drawCircle(this.p, this.c); },
+            _moveTowards: function (n) {
+                var details = this.distanceTo(n, true), dx = details[0], dy = details[1], d = details[2], e = this.e * d;
+                if (this.p.h === -1) { this.p.x = n.x; this.p.y = n.y; return true; }
+                if (d > 1) { this.p.x -= ((dx / d) * e); this.p.y -= ((dy / d) * e); }
+                else { if (this.p.h > 0) { this.p.h--; } else { return true; } }
+                return false;
+            },
+            _update: function () {
+                if (this._moveTowards(this.t)) {
+                    var p = this.q.shift();
+                    if (p) {
+                        this.t.x = p.x || this.p.x; this.t.y = p.y || this.p.y;
+                        this.t.z = p.z || this.p.z; this.t.a = p.a || this.p.a; this.p.h = p.h || 0;
+                    }
+                }
+                var d = this.p.a - this.t.a; this.p.a = Math.max(0.1, this.p.a - (d * 0.05));
+                d = this.p.z - this.t.z; this.p.z = Math.max(1, this.p.z - (d * 0.05));
+            },
+            distanceTo: function (n, details) {
+                var dx = this.p.x - n.x, dy = this.p.y - n.y, d = Math.sqrt(dx * dx + dy * dy);
+                return details ? [dx, dy, d] : d;
+            },
+            move: function (p) { this.q.push(p); },
+            render: function () { this._update(); this._draw(); }
+        };
+
+        S.ShapeBuilder = (function () {
+            var gap = 12, shapeCanvas = document.createElement('canvas'), shapeContext = shapeCanvas.getContext('2d'), fontSize = 500, fontFamily = 'Arial, sans-serif';
+            function fit() {
+                shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
+                shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
+                shapeContext.fillStyle = 'red'; shapeContext.textBaseline = 'middle'; shapeContext.textAlign = 'center';
+            }
+            function processCanvas() {
+                var pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
+                var dots = [], x = 0, y = 0, w = 0, h = 0, fx = shapeCanvas.width, fy = shapeCanvas.height;
+                for (var p = 0; p < pixels.length; p += (4 * gap)) {
+                    if (pixels[p + 3] > 128) {
+                        dots.push(new S.Point({ x: x, y: y }));
+                        w = x > w ? x : w; h = y > h ? y : h; fx = x < fx ? x : fx; fy = y < fy ? y : fy;
+                    }
+                    x += gap;
+                    if (x >= shapeCanvas.width) { x = 0; y += gap; p += gap * 4 * shapeCanvas.width; }
+                }
+                return { dots: dots, w: w + fx, h: h + fy };
+            }
+            function setFontSize(s) { shapeContext.font = 'bold ' + s + 'px ' + fontFamily; }
+            fit();
+            return {
+                letter: function (l) {
+                    setFontSize(fontSize);
+                    var s = Math.min(fontSize, (shapeCanvas.width / shapeContext.measureText(l).width) * 0.8 * fontSize, (shapeCanvas.height / fontSize) * 0.45 * fontSize);
+                    setFontSize(s);
+                    shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+                    shapeContext.fillText(l, shapeCanvas.width / 2, shapeCanvas.height / 2);
+                    return processCanvas();
+                },
+                heart: function () {
+                    shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+                    var dots = [];
+                    var cx = shapeCanvas.width / 2;
+                    var cy = shapeCanvas.height / 2;
+                    for (var t = 0; t < Math.PI * 2; t += 0.05) {
+                        var x = 16 * Math.pow(Math.sin(t), 3);
+                        var y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                        dots.push(new S.Point({
+                            x: cx + x * 15,
+                            y: cy + y * 15
+                        }));
+                    }
+                    return { dots: dots, w: 300, h: 300 };
+                }
+            };
+        }());
+
+        S.Shape = (function () {
+            var dots = [], width = 0, height = 0, cx = 0, cy = 0;
+            function compensate() {
+                var a = S.Drawing.getArea();
+                cx = a.w / 2 - width / 2; cy = a.h / 2 - height / 2;
+            }
+            return {
+                switchShape: function (n) {
+                    width = n.w; height = n.h; compensate();
+                    
+                    while (dots.length < n.dots.length) {
+                        dots.push(new S.Dot(S.Drawing.getArea().w / 2, S.Drawing.getArea().h / 2));
+                    }
+
+                    var d = 0;
+                    while (n.dots.length > 0) {
+                        var i = Math.floor(Math.random() * n.dots.length);
+                        dots[d].e = 0.12;
+                        dots[d].s = true;
+                        dots[d].move(new S.Point({
+                            x: n.dots[i].x + cx,
+                            y: n.dots[i].y + cy,
+                            a: 1,
+                            z: 5,
+                            h: 0
+                        }));
+                        n.dots.splice(i, 1);
+                        d++;
+                    }
+
+                    for (var i = d; i < dots.length; i++) {
+                        dots[i].move(new S.Point({
+                            x: S.Drawing.getArea().w / 2,
+                            y: S.Drawing.getArea().h / 2,
+                            a: 0,
+                            z: 1,
+                            h: 0
+                        }));
+                    }
+                },
+                render: function () { 
+                    for (var d = 0; d < dots.length; d++) { 
+                        dots[d].render(); 
+                    } 
+                }
+            };
+        }());
+    </script>
+</body>
+</html>
