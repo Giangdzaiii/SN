@@ -389,7 +389,9 @@
         const hearts = document.querySelectorAll('.heart-dot');
         const lockScreen = document.getElementById('lockScreen');
         const letterScreen = document.getElementById('letterScreen');
-        const sound = document.getElementById('sound');
+        const sound = new Audio('./style/music.mp4');
+        sound.loop = true;
+        sound.preload = 'auto';
 
         function pressKey(num) {
             if (currentInput.length < 4) {
@@ -551,7 +553,6 @@
                 value = value && value.split(' ').slice(1).join(' ');
                 return value;
             }
-
             function performAction(value) {
                 sequence = typeof (value) === 'object' ? value : sequence.concat(value.split('|'));
                 
@@ -661,9 +662,15 @@
         S.ShapeBuilder = (function () {
             var gap = 12, shapeCanvas = document.createElement('canvas'), shapeContext = shapeCanvas.getContext('2d'), fontSize = 500, fontFamily = 'Arial, sans-serif';
             function fit() {
-                shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
-                shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
-                shapeContext.fillStyle = 'red'; shapeContext.textBaseline = 'middle'; shapeContext.textAlign = 'center';
+                shapeCanvas.width =
+                    Math.floor(window.innerWidth / gap) * gap;
+
+                shapeCanvas.height =
+                    Math.floor(window.innerHeight / gap) * gap;
+
+                shapeContext.fillStyle = 'white';
+                shapeContext.textBaseline = 'middle';
+                shapeContext.textAlign = 'center';
             }
             function processCanvas() {
                 var pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
@@ -679,14 +686,46 @@
                 return { dots: dots, w: w + fx, h: h + fy };
             }
             function setFontSize(s) { shapeContext.font = 'bold ' + s + 'px ' + fontFamily; }
-            fit();
+            fit(); 
             return {
                 letter: function (l) {
-                    setFontSize(fontSize);
-                    var s = Math.min(fontSize, (shapeCanvas.width / shapeContext.measureText(l).width) * 0.8 * fontSize, (shapeCanvas.height / fontSize) * 0.45 * fontSize);
-                    setFontSize(s);
-                    shapeContext.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
-                    shapeContext.fillText(l, shapeCanvas.width / 2, shapeCanvas.height / 2);
+                    shapeContext.clearRect(
+                        0, 0,
+                        shapeCanvas.width,
+                        shapeCanvas.height
+                    );
+
+                    shapeContext.textAlign = 'center';
+                    shapeContext.textBaseline = 'middle';
+
+                    const maxWidth = shapeCanvas.width * 0.9;
+                    const maxHeight = shapeCanvas.height * 0.35;
+
+                    let size = Math.min(
+                        500,
+                        maxWidth / shapeContext.measureText(l).width * 500
+                    );
+
+                    setFontSize(size);
+
+                    // Thu nhỏ chữ cho đến khi vừa chiều rộng màn hình
+                    while (shapeContext.measureText(l).width > maxWidth && size > 10) {
+                        size -= 5;
+                        setFontSize(size);
+                    }
+
+                    // Giới hạn thêm theo chiều cao màn hình
+                    size = Math.min(size, maxHeight);
+                    setFontSize(size);
+
+                    shapeContext.fillStyle = 'white';
+                    shapeContext.fillText(
+                        l,
+                        shapeCanvas.width / 2,
+                        shapeCanvas.height / 2,
+                        maxWidth
+                    );
+
                     return processCanvas();
                 },
                 heart: function () {
